@@ -444,6 +444,14 @@ export class AnalysisService {
     // Send user's exact instructions verbatim
     prompt += userInstructions;
     
+    // For meta-analysis, ensure the text is mentioned again at the end
+    if (mode === 'meta-analysis') {
+      prompt += `\n\nREMEMBER: Analyze both the ORIGINAL TEXT provided above and the ANALYSIS of that text. Your job is to evaluate how well the analysis performed.\n\n`;
+      prompt += `ANSWER THESE QUESTIONS IN CONNECTION WITH THE TEXT AND ITS ANALYSIS.\n\n`;
+    } else {
+      prompt += `\n\nANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT.\n\n`;
+    }
+    
     return prompt;
   }
 
