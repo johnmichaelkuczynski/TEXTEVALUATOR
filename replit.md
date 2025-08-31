@@ -25,10 +25,15 @@ Preferred communication style: Simple, everyday language.
 - **Sequential Processing**: Proper installment delivery with 10-second delays between chunks
 
 ### Current LLM Provider Performance
+- **ZHI 3 (DeepSeek)**: ✓ Much Better - Improved scoring (92/100 for intelligent text), user noted improvement
 - **ZHI 4 (Perplexity)**: ✓ Excellent - Sophisticated analysis, proper scoring (95/100 achieved)
-- **ZHI 3 (DeepSeek)**: ✓ Excellent - Clean JSON parsing, comprehensive responses
-- **ZHI 2 (Anthropic)**: ✓ Good - Complex analysis with robust fallback handling
-- **ZHI 1 (OpenAI)**: ⚠️ Organization verification required despite $30k account credit
+- **ZHI 2 (Anthropic)**: ⚠️ Scoring Issues - Still giving 89/100 to "genuinely intelligent" texts (major disconnect)
+- **ZHI 1 (OpenAI)**: ❌ Blocked - Organization verification required despite $30k account credit
+
+### Latest Scoring Calibration Fix ✓
+- **Critical Scoring Reality Check**: Added explicit instructions to prevent qualitative/quantitative disconnects
+- **Walmart Metric Enforcement**: System now flags when scores contradict qualitative assessments
+- **User Confirmed Improvement**: ZHI 3 performance notably better with proper score alignment
 
 ### Critique & Regeneration Feature ✓
 - **User Feedback Integration**: Critique box for analysis refinement
