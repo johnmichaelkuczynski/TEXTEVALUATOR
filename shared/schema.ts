@@ -6,7 +6,8 @@ export const analysisRequestSchema = z.object({
   mode: z.enum([
     "cognitive-short",
     "psychological-short",
-    "psychopathological-short"
+    "psychopathological-short",
+    "meta-analysis"
   ]),
   llmProvider: z.enum(["zhi1", "zhi2", "zhi3", "zhi4"]),
   chunks: z.array(z.object({
@@ -14,7 +15,21 @@ export const analysisRequestSchema = z.object({
     text: z.string(),
     selected: z.boolean()
   })).optional(),
-  critique: z.string().optional()
+  critique: z.string().optional(),
+  originalAnalysis: z.object({
+    id: z.string(),
+    summary: z.string(),
+    category: z.string(),
+    questions: z.array(z.object({
+      question: z.string(),
+      answer: z.string(),
+      score: z.number()
+    })),
+    overallScore: z.number(),
+    finalAssessment: z.string(),
+    mode: z.string(),
+    llmProvider: z.string()
+  }).optional()
 });
 
 export const analysisResultSchema = z.object({

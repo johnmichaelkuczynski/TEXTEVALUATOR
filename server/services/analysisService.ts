@@ -63,7 +63,7 @@ export class AnalysisService {
   private async performStandardAnalysis(request: AnalysisRequest, analysisText: string): Promise<AnalysisResult> {
     const questions = this.getQuestionsForMode(request.mode);
     const systemPrompt = this.getSystemPrompt(request.mode);
-    const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique);
+    const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique, request.originalAnalysis);
 
     const rawResponse = await this.llmService.callLLM(request.llmProvider, prompt, systemPrompt);
     const parsedResult = this.parseAnalysisResponse(rawResponse, request.mode, request.llmProvider);
@@ -87,7 +87,7 @@ export class AnalysisService {
 
   private async performStandardAnalysisWithStreaming(request: AnalysisRequest, analysisText: string, onUpdate: (update: any) => void): Promise<AnalysisResult> {
     const questions = this.getQuestionsForMode(request.mode);
-    const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique);
+    const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique, request.originalAnalysis);
 
     onUpdate({ type: 'status', message: 'Sending request to LLM...', phase: 'llm-call' });
     
@@ -359,6 +359,21 @@ export class AnalysisService {
       ]
     };
 
+    // Handle meta-analysis mode specially
+    if (mode === 'meta-analysis') {
+      return [
+        "Is the analysis accurate in its assessment of the original text?",
+        "Does the analysis properly apply the evaluation criteria?",
+        "Are the scores given realistic and well-calibrated?",
+        "Does the analysis demonstrate deep understanding of the text?",
+        "Is the analysis thorough and comprehensive?",
+        "Are there significant blind spots or biases in the analysis?",
+        "Does the analysis provide actionable insights?",
+        "Is the final assessment well-supported by the detailed evaluation?",
+        "How would you rate the overall quality of this analysis?"
+      ];
+    }
+
     const modeType = mode.split('-')[0] as keyof typeof baseQuestions;
     const questions = baseQuestions[modeType] || baseQuestions.cognitive;
     
@@ -367,6 +382,11 @@ export class AnalysisService {
   }
 
   private getSystemPrompt(mode: string): string {
+    // Handle meta-analysis mode specially
+    if (mode === 'meta-analysis') {
+      return `You are conducting a meta-analysis of an existing analysis. Your job is to evaluate the quality of the analysis itself, not the original text. Look at both the original text and the analysis, then assess how good the analysis is. Be thorough, critical, and constructive. Point out both strengths and weaknesses. A score of N/100 means that (100-N)/100 of analyses would be better than this one.`;
+    }
+
     const modeType = mode.split('-')[0];
     
     let basePrompt = `You are conducting a ${modeType} assessment. `;
@@ -407,9 +427,9 @@ export class AnalysisService {
     return basePrompt;
   }
 
-  private buildAnalysisPrompt(text: string, questions: string[], mode: string, backgroundInfo?: string, critique?: string): string {
+  private buildAnalysisPrompt(text: string, questions: string[], mode: string, backgroundInfo?: string, critique?: string, originalAnalysis?: any): string {
     // Get user's exact instructions based on mode
-    const userInstructions = this.getUserExactInstructions(mode);
+    const userInstructions = this.getUserExactInstructions(mode, originalAnalysis);
     
     let prompt = `TEXT TO ANALYZE:\n${text}\n\n`;
     
@@ -427,9 +447,47 @@ export class AnalysisService {
     return prompt;
   }
 
-  private getUserExactInstructions(mode: string): string {
+  private getUserExactInstructions(mode: string, originalAnalysis?: any): string {
     const modeType = mode.split('-')[0];
     let instructions = "";
+    
+    // Handle meta-analysis mode specially
+    if (mode === 'meta-analysis') {
+      if (originalAnalysis) {
+        instructions += `ORIGINAL ANALYSIS TO EVALUATE:\n\n`;
+        instructions += `Analysis Mode: ${originalAnalysis.mode}\n`;
+        instructions += `LLM Provider: ${originalAnalysis.llmProvider}\n`;
+        instructions += `Overall Score: ${originalAnalysis.overallScore}/100\n\n`;
+        instructions += `Summary: ${originalAnalysis.summary}\n\n`;
+        instructions += `Category: ${originalAnalysis.category}\n\n`;
+        
+        instructions += `Detailed Questions and Answers:\n`;
+        originalAnalysis.questions?.forEach((q: any, index: number) => {
+          instructions += `${index + 1}. ${q.question}\n`;
+          instructions += `Answer: ${q.answer}\n`;
+          instructions += `Score: ${q.score}/100\n\n`;
+        });
+        
+        instructions += `Final Assessment: ${originalAnalysis.finalAssessment}\n\n`;
+      }
+      
+      instructions += `META-ANALYSIS EVALUATION QUESTIONS:\n\n`;
+      instructions += `Is the analysis accurate in its assessment of the original text?\n\n`;
+      instructions += `Does the analysis properly apply the evaluation criteria?\n\n`;
+      instructions += `Are the scores given realistic and well-calibrated?\n\n`;
+      instructions += `Does the analysis demonstrate deep understanding of the text?\n\n`;
+      instructions += `Is the analysis thorough and comprehensive?\n\n`;
+      instructions += `Are there significant blind spots or biases in the analysis?\n\n`;
+      instructions += `Does the analysis provide actionable insights?\n\n`;
+      instructions += `Is the final assessment well-supported by the detailed evaluation?\n\n`;
+      instructions += `How would you rate the overall quality of this analysis?\n\n`;
+      
+      instructions += `EVALUATE THE ANALYSIS: Look at both the original text and the analysis. Assess how well the analysis performed its task. Be thorough, critical, and constructive. Point out both strengths and weaknesses.\n\n`;
+      instructions += `A score of N/100 means that (100-N)/100 of analyses would be better than this one.\n\n`;
+      instructions += `Format your response as JSON with summary, category, questions array (each with question, answer, score), overallScore, and finalAssessment.\n\n`;
+      
+      return instructions;
+    }
     
     instructions += `YOU SEND THE LLM THE FOLLOWING QUESTIONS:\n\n`;
     

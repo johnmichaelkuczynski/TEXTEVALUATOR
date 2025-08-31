@@ -17,9 +17,10 @@ interface ResultsDisplayProps {
   showStreamingText?: boolean;
   onCritiqueAnalysis?: (critique: string) => void;
   isCritiqueAnalyzing?: boolean;
+  onMetaAnalysis?: (result: AnalysisResult) => void;
 }
 
-export default function ResultsDisplay({ result, isAnalyzing, currentLLM, streamingStatus, streamingPhase, onCritiqueAnalysis, isCritiqueAnalyzing }: ResultsDisplayProps) {
+export default function ResultsDisplay({ result, isAnalyzing, currentLLM, streamingStatus, streamingPhase, onCritiqueAnalysis, isCritiqueAnalyzing, onMetaAnalysis }: ResultsDisplayProps) {
   const { toast } = useToast();
   const [critique, setCritique] = useState("");
 
@@ -207,6 +208,18 @@ export default function ResultsDisplay({ result, isAnalyzing, currentLLM, stream
               Unfiltered LLM Output
             </div>
             <div className="flex items-center gap-2">
+              {onMetaAnalysis && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => result && onMetaAnalysis(result)}
+                  disabled={!result}
+                  data-testid="button-meta-analysis"
+                >
+                  <Brain className="mr-2 h-4 w-4" />
+                  Meta-Analysis
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 size="sm"

@@ -269,6 +269,46 @@ export default function TextAnalyzer() {
     }
   }, [inputText, backgroundInfo, selectedMode, selectedLLM, currentResult, performStreamingAnalysis, toast]);
 
+  // Handle meta-analysis of existing results
+  const handleMetaAnalysis = useCallback(async (result: AnalysisResult) => {
+    if (!inputText) {
+      toast({
+        title: "No original text",
+        description: "Original text is required for meta-analysis",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const analysisRequest: AnalysisRequest = {
+        text: inputText,
+        mode: "meta-analysis" as AnalysisRequest["mode"],
+        llmProvider: selectedLLM,
+        originalAnalysis: {
+          id: result.id,
+          summary: result.summary,
+          category: result.category,
+          questions: result.questions,
+          overallScore: result.overallScore,
+          finalAssessment: result.finalAssessment,
+          mode: result.mode,
+          llmProvider: result.llmProvider
+        }
+      };
+
+      await performStreamingAnalysis(analysisRequest);
+      
+    } catch (error) {
+      console.error('Meta-analysis failed:', error);
+      toast({
+        title: "Meta-analysis failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    }
+  }, [inputText, selectedLLM, toast, performStreamingAnalysis]);
+
   const validateFile = (file: File): boolean => {
     const allowedTypes = [
       'text/plain',
@@ -484,6 +524,7 @@ export default function TextAnalyzer() {
                   <SelectItem value="cognitive-short">Cognitive</SelectItem>
                   <SelectItem value="psychological-short">Psychological</SelectItem>
                   <SelectItem value="psychopathological-short">Psychopathological</SelectItem>
+                  <SelectItem value="meta-analysis">Meta-Analysis</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -643,6 +684,7 @@ export default function TextAnalyzer() {
             showStreamingText={showStreamingText}
             onCritiqueAnalysis={performCritiqueAnalysis}
             isCritiqueAnalyzing={isCritiqueAnalyzing}
+            onMetaAnalysis={handleMetaAnalysis}
           />
         </div>
       </main>
