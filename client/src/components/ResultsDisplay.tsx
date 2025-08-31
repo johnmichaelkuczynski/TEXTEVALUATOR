@@ -212,7 +212,12 @@ export default function ResultsDisplay({ result, isAnalyzing, currentLLM, stream
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => result && onMetaAnalysis(result)}
+                  onClick={() => {
+                    console.log('Meta-Analysis button clicked', result);
+                    if (result && onMetaAnalysis) {
+                      onMetaAnalysis(result);
+                    }
+                  }}
                   disabled={!result}
                   data-testid="button-meta-analysis"
                 >

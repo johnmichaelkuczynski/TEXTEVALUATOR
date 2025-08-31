@@ -271,6 +271,9 @@ export default function TextAnalyzer() {
 
   // Handle meta-analysis of existing results
   const handleMetaAnalysis = useCallback(async (result: AnalysisResult) => {
+    console.log('handleMetaAnalysis called with:', result);
+    console.log('inputText available:', !!inputText);
+    
     if (!inputText) {
       toast({
         title: "No original text",
@@ -297,6 +300,7 @@ export default function TextAnalyzer() {
         }
       };
 
+      console.log('Sending meta-analysis request:', analysisRequest);
       await performStreamingAnalysis(analysisRequest);
       
     } catch (error) {
