@@ -20,7 +20,7 @@ interface ResultsDisplayProps {
   onMetaAnalysis?: (result: AnalysisResult) => void;
 }
 
-export default function ResultsDisplay({ result, isAnalyzing, currentLLM, streamingStatus, streamingPhase, onCritiqueAnalysis, isCritiqueAnalyzing, onMetaAnalysis }: ResultsDisplayProps) {
+export default function ResultsDisplay({ result, isAnalyzing, currentLLM, streamingStatus, streamingPhase, streamingText, showStreamingText, onCritiqueAnalysis, isCritiqueAnalyzing, onMetaAnalysis }: ResultsDisplayProps) {
   const { toast } = useToast();
   const [critique, setCritique] = useState("");
 
@@ -191,12 +191,52 @@ export default function ResultsDisplay({ result, isAnalyzing, currentLLM, stream
                 </div>
               </div>
             ) : (
-              // Loading State
-              <div className="h-full flex items-center justify-center">
-                <div className="text-center">
+              // Loading State with Real-Time Streaming
+              <div className="h-full p-4">
+                <div className="text-center mb-6">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-                  <p className="text-sm text-muted-foreground">Analyzing text...</p>
+                  <p className="text-sm text-muted-foreground">
+                    {streamingStatus || "Analyzing text..."}
+                  </p>
+                  {streamingPhase && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Phase: {streamingPhase}
+                    </p>
+                  )}
                 </div>
+                
+                {/* CHUNKED DELIVERY PROGRESS */}
+                {streamingPhase && (streamingPhase.includes('protocol-chunk') || streamingPhase.includes('text-chunk')) && (
+                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                      <div className="flex justify-between items-center">
+                        <span>Chunked Protocol Delivery</span>
+                        <span className="text-xs">Processing...</span>
+                      </div>
+                      <div className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                        Protocol chunks: 2s delays • Text chunks: 1s delays
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* REAL-TIME STREAMING TEXT DISPLAY */}
+                {showStreamingText && streamingText && (
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Brain className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                        Live Analysis Generation
+                      </span>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
+                        {streamingText}
+                        <span className="inline-block w-2 h-4 bg-green-500 animate-pulse ml-1"></span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

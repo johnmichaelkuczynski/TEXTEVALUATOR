@@ -86,24 +86,75 @@ export class AnalysisService {
   }
 
   private async performStandardAnalysisWithStreaming(request: AnalysisRequest, analysisText: string, onUpdate: (update: any) => void): Promise<AnalysisResult> {
+    // CHUNKED PROTOCOL DELIVERY IMPLEMENTATION
     const questions = this.getQuestionsForMode(request.mode);
-    const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique, request.originalAnalysis);
-
-    onUpdate({ type: 'status', message: 'Sending request to LLM...', phase: 'llm-call' });
+    const fullPrompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique, request.originalAnalysis);
     
+    // Split the protocol into chunks for better processing
+    const protocolChunks = this.splitIntoChunks(fullPrompt, 2000);
+    const textChunks = analysisText.length > 500 ? this.splitIntoChunks(analysisText, 1000) : [analysisText];
+    
+    onUpdate({ type: 'status', message: `Sending protocol in ${protocolChunks.length} chunks...`, phase: 'protocol-delivery' });
+    
+    // Build chunked prompt with delays
+    let chunkedPrompt = '';
+    
+    // Send protocol chunks with 2-second delays
+    for (let i = 0; i < protocolChunks.length; i++) {
+      onUpdate({ 
+        type: 'status', 
+        message: `Delivering protocol chunk ${i + 1}/${protocolChunks.length}...`, 
+        phase: 'protocol-chunk',
+        chunk: i + 1,
+        total: protocolChunks.length
+      });
+      
+      chunkedPrompt += protocolChunks[i] + '\n';
+      
+      if (i < protocolChunks.length - 1) {
+        onUpdate({ type: 'status', message: 'Processing protocol chunk...', phase: 'protocol-processing' });
+        await this.delay(2000); // 2 second delay between protocol chunks
+      }
+    }
+    
+    // Add text delivery with 1-second delays
+    onUpdate({ type: 'status', message: `Sending text in ${textChunks.length} chunks...`, phase: 'text-delivery' });
+    chunkedPrompt += '\n\nText to analyze:\n';
+    
+    for (let i = 0; i < textChunks.length; i++) {
+      onUpdate({ 
+        type: 'status', 
+        message: `Delivering text chunk ${i + 1}/${textChunks.length}...`, 
+        phase: 'text-chunk',
+        chunk: i + 1,
+        total: textChunks.length
+      });
+      
+      chunkedPrompt += textChunks[i] + '\n';
+      
+      if (i < textChunks.length - 1) {
+        onUpdate({ type: 'status', message: 'Processing text chunk...', phase: 'text-processing' });
+        await this.delay(1000); // 1 second delay between text chunks
+      }
+    }
+
+    onUpdate({ type: 'status', message: `Starting real-time analysis with ${request.llmProvider}...`, phase: 'llm-streaming' });
+    
+    // REAL-TIME STREAMING - Display analysis as it's generated
     let streamedContent = "";
     const onChunk = (chunk: string) => {
       streamedContent += chunk;
       onUpdate({ 
         type: 'streaming_text', 
         chunk: chunk,
-        accumulated: streamedContent
+        accumulated: streamedContent,
+        message: 'Generating analysis...'
       });
     };
     
-    const rawResponse = await this.llmService.callLLMWithStreaming(request.llmProvider, prompt, onChunk);
+    const rawResponse = await this.llmService.callLLMWithStreaming(request.llmProvider, chunkedPrompt, onChunk);
     
-    onUpdate({ type: 'status', message: 'Processing response...', phase: 'parsing' });
+    onUpdate({ type: 'status', message: 'Finalizing analysis...', phase: 'parsing' });
     const parsedResult = this.parseAnalysisResponse(rawResponse, request.mode, request.llmProvider);
     
     const result: AnalysisResult = {
@@ -122,6 +173,29 @@ export class AnalysisService {
     this.results.set(result.id, result);
     onUpdate({ type: 'progress', result: parsedResult });
     return result;
+  }
+
+  private splitIntoChunks(text: string, maxChunkSize: number): string[] {
+    const chunks: string[] = [];
+    let currentChunk = '';
+    
+    // Split by sentences for better coherence
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    
+    for (const sentence of sentences) {
+      if (currentChunk.length + sentence.length > maxChunkSize && currentChunk.length > 0) {
+        chunks.push(currentChunk.trim());
+        currentChunk = sentence;
+      } else {
+        currentChunk += (currentChunk.length > 0 ? ' ' : '') + sentence;
+      }
+    }
+    
+    if (currentChunk.trim().length > 0) {
+      chunks.push(currentChunk.trim());
+    }
+    
+    return chunks.length > 0 ? chunks : [text]; // Fallback to original text if splitting fails
   }
 
 
