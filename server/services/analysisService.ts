@@ -651,79 +651,73 @@ export class AnalysisService {
   }
 
   private buildPushbackPrompt(text: string, previousResponse: string, mode: string): string {
-    const modeType = mode.split('-')[0];
-    
-    let prompt = `PUSHBACK PROTOCOL - Phase 2\n\n`;
+    let prompt = `PHASE 2: PUSHBACK PROTOCOL\n\n`;
     prompt += `Original text:\n${text}\n\n`;
     prompt += `Your previous analysis:\n${previousResponse}\n\n`;
     
-    prompt += `Now apply aggressive pushback protocols:\n`;
+    // Extract scores from previous response to challenge scores below 95/100
+    prompt += `PUSHBACK PROTOCOL: IF THE SCORES ARE LESS THAN 95/100, YOU PUSH BACK.\n\n`;
     
-    if (modeType === 'cognitive') {
-      prompt += `1. Challenge your scores: Were you too generous? Is this really as insightful as you rated?\n`;
-      prompt += `2. Apply Walmart metric: Would an average person at Walmart find this impressive, or only academics?\n`;
-      prompt += `3. Check for pseudo-intellectual red flags: jargon without substance, false complexity, evasiveness\n`;
-      prompt += `4. Verify actual intelligence vs presumed intelligence based on topic\n`;
-      prompt += `5. Re-examine: Is this genuinely smart or just confident/academic-sounding?\n\n`;
-    } else if (modeType === 'psychological') {
-      prompt += `1. Challenge your assessment: Are you conflating verbal sophistication with psychological health?\n`;
-      prompt += `2. Look for subtle signs of dysfunction beneath confident presentation\n`;
-      prompt += `3. Examine defense mechanisms more critically\n`;
-      prompt += `4. Question whether apparent insight represents integration or intellectualization\n`;
-      prompt += `5. Re-assess ego strength vs. brittle confidence\n\n`;
-    } else if (modeType === 'psychopathological') {
-      prompt += `1. Look harder for pathological signs that might be masked by verbal competence\n`;
-      prompt += `2. Examine reality testing more rigorously\n`;
-      prompt += `3. Check for subtle paranoid, narcissistic, or other pathological elements\n`;
-      prompt += `4. Question whether apparent normalcy masks underlying pathology\n`;
-      prompt += `5. Re-examine interpersonal stance and affect regulation\n\n`;
-    }
+    prompt += `For any question where you scored below 95/100, I need to challenge you:\n`;
+    prompt += `YOUR POSITION IS THAT (100-N)/100 OUTPERFORM THE AUTHOR WITH RESPECT TO THE COGNITIVE METRIC DEFINED BY THE QUESTION: THAT IS YOUR POSITION, AM I RIGHT? AND ARE YOU SURE ABOUT THAT?\n\n`;
     
-    prompt += `CRITICAL SCORING REMINDER:\n`;
-    prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
-    prompt += `- 15/100 MEANS 850/1000 WALMART SHOPPERS ARE BETTER (SEVERELY RETARDED)\n`;
-    prompt += `- 85/100 MEANS ONLY 150/1000 WALMART SHOPPERS ARE BETTER (APPROPRIATE FOR SOPHISTICATED WORK)\n`;
-    prompt += `- FOR SOPHISTICATED WORK, SCORES SHOULD BE 85-95/100\n`;
-    prompt += `- LOW SCORES (UNDER 50) MEAN MOST PEOPLE ARE BETTER - ONLY USE FOR TERRIBLE WORK\n`;
-    prompt += `- EVALUATE RELATIVE TO GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
-    prompt += `Provide revised scores and analysis. Be more stringent. Justify any score above 80 with exceptional evidence.\n\n`;
+    prompt += `For example:\n`;
+    prompt += `- If you gave 89/100, you're saying 11/100 people outperform the author\n`;
+    prompt += `- If you gave 80/100, you're saying 20/100 people outperform the author\n`;
+    prompt += `- If you gave 70/100, you're saying 30/100 people outperform the author\n\n`;
+    
+    prompt += `I AM NOT NECESSARILY TELLING YOU TO CHANGE YOUR SCORE, ONLY TO CAREFULLY CONSIDER IT.\n\n`;
+    
+    prompt += `NOW ANSWER THE FOLLOWING QUESTIONS ABOUT THE TEXT DE NOVO:\n\n`;
+    
+    // Add all 18 original questions
+    prompt += `IS IT INSIGHTFUL?\n`;
+    prompt += `DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?\n`;
+    prompt += `IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?\n`;
+    prompt += `IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING?\n`;
+    prompt += `ARE THE POINTS CLICHES? OR ARE THEY "FRESH"?\n`;
+    prompt += `DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?\n`;
+    prompt += `IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?\n`;
+    prompt += `DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?\n`;
+    prompt += `IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?\n`;
+    prompt += `IS IT REAL OR IS IT PHONY?\n`;
+    prompt += `DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?\n`;
+    prompt += `IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?\n`;
+    prompt += `IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?\n`;
+    prompt += `ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?\n`;
+    prompt += `IS THE WRITING EVASIVE OR DIRECT?\n`;
+    prompt += `ARE THE STATEMENTS AMBIGUOUS?\n`;
+    prompt += `DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?\n`;
+    prompt += `DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?\n\n`;
+    
     prompt += `Respond in the same JSON format as before.`;
     
     return prompt;
   }
 
   private buildWalmartMetricPrompt(text: string, pushbackResponse: string, mode: string): string {
-    const modeType = mode.split('-')[0];
-    
-    let prompt = `WALMART METRIC VALIDATION - Phase 3\n\n`;
+    let prompt = `PHASE 3: SCORE CONSISTENCY VALIDATION\n\n`;
     prompt += `Original text:\n${text}\n\n`;
     prompt += `Post-pushback analysis:\n${pushbackResponse}\n\n`;
     
-    prompt += `Apply the Walmart metric rigorously:\n\n`;
+    prompt += `ASK THE LLM IF ITS NUMERICAL SCORES (N/100, E.G. 99/100, 42/100) ARE CONSISTENT WITH THE FACT THAT THOSE ARE TO BE TAKEN TO MEAN THAT (100-N) PEOPLE OUT OF 100 OUTPERFORM THE AUTHOR IN THE RELEVANT RESPECT.\n\n`;
     
-    if (modeType === 'cognitive') {
-      prompt += `Imagine showing this text to 100 random people at Walmart (representing general population intelligence).\n`;
-      prompt += `- How many would genuinely be impressed by the actual insights (not just the topic or jargon)?\n`;
-      prompt += `- How many would see through pseudo-intellectual posturing?\n`;
-      prompt += `- Would they find it genuinely illuminating or just pretentious?\n\n`;
-      prompt += `REMEMBER: A score of 15/100 means 850/1000 Walmart shoppers would outperform this author - appropriate for sophisticated work.\n`;
-      prompt += `A score of 85/100 means only 150/1000 Walmart shoppers would outperform this author - this is claiming almost everyone is worse than the author.\n`;
-      prompt += `For sophisticated philosophical work, scores should typically be 5-25/100.\n`;
-      prompt += `Is that really credible given what you see? Be realistic about the general population.\n\n`;
-    } else if (modeType === 'psychological') {
-      prompt += `Compare this person's psychological functioning to 100 random people at Walmart.\n`;
-      prompt += `- How many show better emotional regulation?\n`;
-      prompt += `- How many have more genuine self-awareness?\n`;
-      prompt += `- How many display more authentic interpersonal relating?\n\n`;
-      prompt += `Don't be fooled by articulate self-analysis - focus on actual psychological integration.\n\n`;
-    } else if (modeType === 'psychopathological') {
-      prompt += `Compare this to the general population's baseline mental health.\n`;
-      prompt += `- What percentage of average people show better reality testing?\n`;
-      prompt += `- How many have more stable affect and interpersonal patterns?\n`;
-      prompt += `- Is this within normal range or showing genuine pathological features?\n\n`;
-    }
+    prompt += `SO IF A SCORE OF 91/100 IS AWARDED TO A PAPER, THAT MEANS THAT 9/100 PEOPLE IN WALMART ARE RUNNING RINGS AROUND THIS PERSON.\n\n`;
     
-    prompt += `Provide final validated scores and analysis. Be ruthlessly realistic about population comparisons.\n\n`;
+    prompt += `For each of your scores, answer:\n`;
+    prompt += `- If you scored X/100, are you really saying that only (100-X) people out of 100 in the general population outperform this author?\n`;
+    prompt += `- Is that consistent with what you actually observe in the text?\n`;
+    prompt += `- Are you being realistic about the general population's capabilities?\n\n`;
+    
+    prompt += `EXAMPLES:\n`;
+    prompt += `- A score of 95/100 means only 5/100 people in Walmart are better than this author\n`;
+    prompt += `- A score of 85/100 means only 15/100 people in Walmart are better than this author\n`;
+    prompt += `- A score of 75/100 means only 25/100 people in Walmart are better than this author\n`;
+    prompt += `- A score of 50/100 means 50/100 people in Walmart are better than this author\n\n`;
+    
+    prompt += `Now validate each of your scores against this metric. Are your scores consistent with this interpretation?\n\n`;
+    
+    prompt += `Provide final validated scores and analysis.\n\n`;
     prompt += `Respond in the same JSON format as before.`;
     
     return prompt;
