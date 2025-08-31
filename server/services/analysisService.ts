@@ -635,6 +635,16 @@ export class AnalysisService {
     instructions += `- PASSAGES RELEVANTLY SIMILAR TO THE GOOD EXAMPLES SHOULD RECEIVE SCORES OF 96 OR HIGHER\n`;
     instructions += `- PASSAGES RELEVANTLY SIMILAR TO THE BAD EXAMPLE SHOULD RECEIVE SCORES OF 65 OR LOWER\n\n`;
     
+    instructions += `CRITICAL SCORING REALITY CHECK:\n`;
+    instructions += `- IF YOU SAY TEXT IS "GENUINELY INTELLIGENT" OR "MAKES SUBSTANTIVE CONTRIBUTIONS" OR "INSIGHTFUL" OR "NOVEL", THE SCORE MUST BE 95+ MINIMUM\n`;
+    instructions += `- A SCORE OF 89/100 MEANS 11/100 WALMART SHOPPERS COULD PRODUCE BETTER WORK THAN "GENUINELY INTELLIGENT PHILOSOPHICAL WRITING"\n`;
+    instructions += `- THAT IS COMPLETELY ABSURD AND MAKES THE SYSTEM A FAILURE\n`;
+    instructions += `- IF TEXT SHOWS REAL INTELLIGENCE, INSIGHT, AND CONTRIBUTION: SCORE 95-99/100\n`;
+    instructions += `- IF TEXT IS COMPETENT BUT NOT BRILLIANT: SCORE 85-94/100\n`;
+    instructions += `- IF TEXT IS AVERAGE/MEDIOCRE: SCORE 40-60/100\n`;
+    instructions += `- IF TEXT IS PHONY/PSEUDO-INTELLECTUAL: SCORE 65 OR BELOW\n`;
+    instructions += `- STOP GIVING SCORES IN THE 80s-90s TO TEXTS YOU PRAISE AS BRILLIANT - THIS MAKES NO SENSE WITH THE WALMART METRIC\n\n`;
+    
     instructions += `Format your response as JSON with summary, category, questions array (each with question, answer, score), overallScore, and finalAssessment.\n\n`;
     
     return instructions;

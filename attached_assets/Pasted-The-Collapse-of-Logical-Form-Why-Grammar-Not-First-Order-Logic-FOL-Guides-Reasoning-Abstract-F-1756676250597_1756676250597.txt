@@ -1,0 +1,68 @@
+The Collapse of Logical Form: Why Grammar, Not First-Order Logic (FOL), Guides Reasoning
+
+Abstract
+For over a century, analytic philosophy has regarded "logical form" as the underlying structure essential for valid reasoning. It was believed that natural language was deceptive and required conversion into structured systems like first-order logic (FOL). However, this approach failed. Only a small percentage of sentences could be assigned clear logical forms, and even then, the process was cumbersome. More critically, the idea that human cognition operates through logical form is not supported by evidence. Grammar naturally encodes inferential patterns without needing translation. The collapse of logical form is not a crisis but a liberation.
+
+1. The Classical Program
+
+The logical form project was based on three assumptions:
+
+Natural language is deceptive and requires uncovering hidden structures. For example, the sentence "Everyone loves someone" can be misleading without knowing if it means everyone loves one specific person or different people.
+
+First-order logic or its structured variants provide the "true" form. A sentence like "All cats are animals" can be translated to FOL as ∀x(Cat(x) → Animal(x)).
+
+Thought is best understood through these logical forms. The goal was to translate complex expressions into a standard form for mechanical evaluation.
+
+2. Failure of Coverage
+
+The project quickly hit obstacles. Determinate logical forms were only found for a few sentence types: basic quantifications like "Some dogs bark," simple conditionals such as "If it rains, the ground gets wet," and certain propositional embeddings. However, many language areas resisted clear mapping:
+
+Modality and counterfactuals, such as "It might rain" or "If I had known, I would have acted differently."
+
+Temporal and aspectual distinctions, like "She was running" versus "She runs."
+
+Attitude reports and intensionality, such as "John believes the earth is flat."
+
+Plurals, generics, and anaphora, for example, "Cats are playful" or "She found her book."
+
+Each of these prompted the creation of complex formalisms, none achieving consensus. The dream of a uniform logical syntax for natural language fell apart.
+
+3. Failure of Feasibility
+
+Even when forms could be assigned, the process was excessively complex. Translating sentences into structured FOL required significant assumptions and additional notations. Instead of simplifying inference, it complicated the understanding of how reasoning works.
+
+4. The Myth of Thought in Logic
+
+The assumption was that cognition operates like first-order logic, which is incorrect:
+
+Brains do not perform FOL derivations. For example, people often make quick decisions without formal logic.
+
+FOL struggles to handle vague predicates, like "tall" or "bald," without contrived solutions.
+
+Human reasoning is quick, context-sensitive, and often imprecise, unlike regimented proof theory.
+
+Believing FOL could be the "touchstone of thought" is a fundamental error, mistaking a bookkeeping system for the actual cognitive process.
+
+5. Grammar as Inferentially Sufficient
+
+Empirical evidence shows natural language grammar itself carries inferential patterns:
+
+Quantifiers like "all" and "some," negatives such as "not," and connectives like "and" or "or" enable systematic inferences.
+
+Predication, like "is a" in "A cat is a pet," consistently establishes class relations without translation.
+
+Both humans and AI systems process these patterns directly, making valid inferences without resorting to logical form.
+
+The success of AI models that reason effectively without explicit FOL is clear evidence. If reasoning can arise from grammatical structure and pattern recognition, then logical form is not a primary explanatory tool but a byproduct of formal systems.
+
+6. Implications
+
+Logical form is not used in real-time reasoning; it is created after the fact.
+
+Grammar is not misleading. Rather than needing translation, grammar aligns naturally with logical relations in practice.
+
+The focus should be on studying grammar's inferential capacities and the mechanisms that utilize them, whether in human cognition or AI systems.
+
+7. Conclusion
+
+The logical form project promised rigor but delivered limited coverage, excessive complexity, and mistaken assumptions about cognition. Its central claim—that reasoning must be mediated by FOL—is fundamentally flawed. Grammar itself is sufficient to guide reasoning, as shown by both human practice and AI capabilities. The collapse of logical form is not a crisis but a liberation, allowing philosophy to move away from a failed concept and towards the true sources of inference.
