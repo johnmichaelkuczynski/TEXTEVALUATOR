@@ -1,0 +1,54 @@
+Naturalized Epistemology and Its Aftermath: Why the Rejection Was Premature
+
+Abstract
+Quine's call to "naturalize" epistemology was one of the most radical turns in twentieth-century philosophy. It sought to replace armchair accounts of justification with an empirically grounded study of how human cognition actually produces knowledge. The program, however, was largely rejected or domesticated by later philosophers. This article reconstructs the reasons for that rejection and argues that those reasons no longer hold. Advances in cognitive science and artificial intelligence have made the original naturalized program not only viable but necessary.
+
+1. The Naturalized Epistemology Program
+
+In Epistemology Naturalized (1969), Quine argued that the traditional project of grounding science in sense-data or a priori principles had failed. Epistemology should instead be continuous with empirical science. Rather than seeking transcendental justifications, philosophers should study how the human organism, as a physical system, generates beliefs about the world. This meant:
+
+Using psychology and related sciences to explain cognition.
+
+Abandoning the idea of a first philosophy prior to science.
+
+Treating epistemology as part of the natural sciences, not as a discipline above them.
+
+The program was radical: it turned epistemology from an arbiter of science into one of its subfields.
+
+2. Why Philosophers Rejected the Program
+
+Despite its boldness, naturalized epistemology was resisted. The rationales were familiar:
+
+Discovery vs. Justification Firewall
+Following Reichenbach, philosophers distinguished between the context of discovery (psychological, contingent) and the context of justification (logical, normative). Quine was said to have confused the two. The line was: studying how people do think tells us nothing about whether their thinking is justified.
+
+Loss of Normativity
+Critics insisted that epistemology is an inherently normative discipline. To replace it with psychology, they argued, was to abandon questions of rationality. Quine, they claimed, left us only with descriptions of cognitive behavior, not standards of right reasoning.
+
+Philosophy's Self-Preservation
+More quietly, naturalization threatened the autonomy of philosophy itself. If epistemology collapsed into psychology, philosophers would lose their disciplinary turf. This institutional interest—rarely acknowledged explicitly—helped entrench the official narrative that naturalization was a category mistake.
+
+Domestication into Reliabilism
+To salvage something, philosophers reframed naturalism as reliabilism: justification consists in belief produced by a reliable process. But this version avoided engagement with actual psychology or neuroscience. It was "naturalism" in name, not in practice.
+
+3. Why Those Rejections Fail
+
+The grounds for rejection collapse once we confront how cognition can now be studied.
+
+Discovery and Justification Are Not Disjoint
+The assumption that discovery is "merely psychological" ignores that some generative processes are systematically truth-conducive. If a mechanism repeatedly generates true, explanatory beliefs across domains, that is itself normative evidence of its epistemic value. The success of a reasoning procedure validates it.
+
+Normativity Emerges from Mechanism
+A principle that reliably produces true beliefs is not just descriptive; it is prescriptive. The line between psychology and logic was always artificial. Mechanisms capable of sustaining successful science embody standards of rationality whether philosophers admit it or not.
+
+Concrete, Testable Models Now Exist
+With AI and computational modeling, we can build systems that replicate core features of scientific reasoning: pattern recognition, integration of statistical and causal inference, explanatory coherence, and hypothesis generation under constraints. When such systems succeed, they reveal the operative principles of discovery. These are not idle psychological quirks but testable, generalizable logics.
+
+The Old "Loss of Philosophy" Fear Is Misplaced
+Far from eliminating philosophy, this program re-equips it. By reverse-engineering the mechanisms that generate knowledge, we can articulate a genuine logic of discovery—something traditional philosophy declared impossible. The role of philosophy shifts from guardian of armchair intuitions to theorist of the very engines of knowledge.
+
+4. Conclusion
+
+The rejection of naturalized epistemology was grounded in an outdated view of cognition and a defensive view of philosophy's role. The discovery/justification divide, the supposed loss of normativity, and the retreat into reliabilism all rest on the assumption that studying real cognitive mechanisms cannot yield logical principles. That assumption is now untenable. Cognitive science and artificial intelligence show that successful mechanisms are themselves normative: they earn their status by working.
+
+Naturalized epistemology was right in spirit but wrong in timing. The tools to realize it are only now emerging. What philosophers dismissed as psychology is in fact the future logic of science.
