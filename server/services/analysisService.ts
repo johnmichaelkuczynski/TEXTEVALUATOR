@@ -545,10 +545,10 @@ export class AnalysisService {
     
     prompt += `CRITICAL SCORING INSTRUCTIONS:\n`;
     prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
-    prompt += `- 83/100 MEANS 170/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
-    prompt += `- 95/100 MEANS ONLY 50/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
-    prompt += `- FOR SOPHISTICATED PHILOSOPHICAL WORK LIKE THIS, SCORES SHOULD TYPICALLY BE 90-98/100\n`;
-    prompt += `- DO NOT GIVE MODEST SCORES TO GENUINELY SOPHISTICATED WORK\n`;
+    prompt += `- 86/100 MEANS 140/1000 WALMART SHOPPERS ARE BETTER THAN THIS AUTHOR AT THIS SKILL\n`;
+    prompt += `- FOR SOPHISTICATED PHILOSOPHICAL WORK, MOST SCORES SHOULD BE 5-25/100\n`;
+    prompt += `- ONLY 50-250 OUT OF 1000 RANDOM PEOPLE COULD MATCH THIS LEVEL OF PHILOSOPHICAL SOPHISTICATION\n`;
+    prompt += `- HIGH SCORES (80+) MEAN MOST PEOPLE ARE BETTER - ONLY USE FOR TRULY POOR WORK\n`;
     prompt += `- EVALUATE RELATIVE TO THE GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
     
     prompt += `You must provide a detailed answer to each question, not just restate the question. Each answer should be 2-3 sentences minimum with specific analysis and a numeric score.\n\n`;
@@ -617,8 +617,9 @@ export class AnalysisService {
     
     prompt += `CRITICAL SCORING REMINDER:\n`;
     prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
-    prompt += `- 83/100 MEANS 170/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
-    prompt += `- FOR SOPHISTICATED WORK, SCORES SHOULD BE 90-98/100 IF GENUINELY EXCEPTIONAL\n`;
+    prompt += `- 86/100 MEANS 140/1000 WALMART SHOPPERS ARE BETTER THAN THIS AUTHOR\n`;
+    prompt += `- FOR SOPHISTICATED WORK, SCORES SHOULD BE 5-25/100 (ONLY 50-250/1000 PEOPLE COULD MATCH THIS)\n`;
+    prompt += `- HIGH SCORES (80+) MEAN MOST PEOPLE ARE BETTER - ONLY USE FOR POOR WORK\n`;
     prompt += `- EVALUATE RELATIVE TO GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
     prompt += `Provide revised scores and analysis. Be more stringent. Justify any score above 80 with exceptional evidence.\n\n`;
     prompt += `Respond in the same JSON format as before.`;
@@ -640,9 +641,9 @@ export class AnalysisService {
       prompt += `- How many would genuinely be impressed by the actual insights (not just the topic or jargon)?\n`;
       prompt += `- How many would see through pseudo-intellectual posturing?\n`;
       prompt += `- Would they find it genuinely illuminating or just pretentious?\n\n`;
-      prompt += `REMEMBER: A score of 85/100 means only 150/1000 Walmart shoppers would outperform this author intellectually.\n`;
-      prompt += `A score of 90/100 means only 100/1000 Walmart shoppers would outperform this author.\n`;
-      prompt += `A score of 95/100 means only 50/1000 Walmart shoppers would outperform this author.\n`;
+      prompt += `REMEMBER: A score of 15/100 means 850/1000 Walmart shoppers would outperform this author - appropriate for sophisticated work.\n`;
+      prompt += `A score of 85/100 means only 150/1000 Walmart shoppers would outperform this author - this is claiming almost everyone is worse than the author.\n`;
+      prompt += `For sophisticated philosophical work, scores should typically be 5-25/100.\n`;
       prompt += `Is that really credible given what you see? Be realistic about the general population.\n\n`;
     } else if (modeType === 'psychological') {
       prompt += `Compare this person's psychological functioning to 100 random people at Walmart.\n`;
