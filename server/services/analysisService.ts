@@ -729,17 +729,11 @@ export class AnalysisService {
   private validateAndFixResponse(parsed: any, mode: string): any {
     // Ensure required fields exist
     if (!parsed.summary) {
-      parsed.summary = "Analysis completed";
+      throw new Error("LLM failed to provide summary - invalid response structure");
     }
     
     if (!parsed.questions || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
-      // Get the expected questions for this mode
-      const expectedQuestions = this.getQuestionsForMode(mode);
-      parsed.questions = expectedQuestions.map(question => ({
-        question: question,
-        answer: "Analysis failed to provide detailed response",
-        score: 50
-      }));
+      throw new Error("LLM failed to provide question responses - invalid response structure");
     }
     
     if (!parsed.overallScore) {
@@ -814,9 +808,6 @@ export class AnalysisService {
   }
 
   private createStructuredResponse(response: string, mode: string): any {
-    const category = this.getCategoryForMode(mode);
-    const questions = this.getQuestionsForMode(mode);
-    
     // Parse individual JSON objects from the malformed response
     const questionObjects = [];
     
@@ -832,29 +823,35 @@ export class AnalysisService {
       });
     }
     
-    // If we didn't find structured objects, fall back to the original questions
-    const items = questionObjects.length > 0 ? questionObjects : 
-      questions.map(q => ({
-        question: q,
-        answer: "Analysis provided",
-        score: 75
-      }));
+    if (questionObjects.length === 0) {
+      throw new Error("Failed to extract any question responses from LLM output");
+    }
 
-    const validScores = items.filter(i => i.score > 0);
+    const validScores = questionObjects.filter(i => i.score > 0);
     const overall = validScores.length > 0
       ? Math.round(validScores.reduce((sum, item) => sum + item.score, 0) / validScores.length)
       : 75;
 
     // Extract summary from JSON structure
     const summaryMatch = response.match(/"summary"\s*:\s*"([^"]+)"/);
-    const summary = summaryMatch ? summaryMatch[1] : "Analysis completed";
+    const summary = summaryMatch ? summaryMatch[1] : null;
+    
+    if (!summary) {
+      throw new Error("Failed to extract summary from LLM output");
+    }
+    
+    const categoryMatch = response.match(/"category"\s*:\s*"([^"]+)"/);
+    const category = categoryMatch ? categoryMatch[1] : this.getCategoryForMode(mode);
+    
+    const finalAssessmentMatch = response.match(/"finalAssessment"\s*:\s*"([^"]+)"/);
+    const finalAssessment = finalAssessmentMatch ? finalAssessmentMatch[1] : summary;
     
     return {
       summary: summary,
       category: category,
-      questions: items,
+      questions: questionObjects,
       overallScore: overall,
-      finalAssessment: summary
+      finalAssessment: finalAssessment
     };
   }
 
