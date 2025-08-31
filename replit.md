@@ -12,6 +12,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Complete Intelligence Assessment Protocol Successfully Implemented ✓
 - **MAJOR BREAKTHROUGH**: Cognitive short analysis now "DRAMATICALLY BETTER" with proper scoring
+- **CRITICAL PSYCHOLOGICAL FIX**: Psychological short analysis now uses proper psychological protocol questions ✓
 - **Complete Instruction Set**: All 28 questions (18 original + 10 additional) now sent to LLM verbatim
 - **METAPOINT 1-6 Addendum**: Full addendum integrated into every analysis call
 - **Phony Example Analysis**: Complete pseudo-intellectual example with detailed critique included
