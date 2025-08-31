@@ -457,7 +457,14 @@ export class AnalysisService {
     const isLong = mode.includes('long');
     
     const questions = baseQuestions[modeType] || baseQuestions.cognitive;
-    return isLong ? questions : questions.slice(0, Math.ceil(questions.length / 2));
+    
+    // For cognitive mode: short uses all questions, long uses comprehensive protocol
+    // For psychological and psychopathological: short uses subset, long uses all
+    if (modeType === 'cognitive') {
+      return questions; // Both short and long use all cognitive questions
+    } else {
+      return isLong ? questions : questions.slice(0, Math.ceil(questions.length / 2));
+    }
   }
 
   private getSystemPrompt(mode: string): string {
@@ -544,8 +551,10 @@ export class AnalysisService {
     prompt += `  "category": "Category of text (e.g., Academic Paper, Creative Writing, etc.)",\n`;
     prompt += `  "questions": [\n`;
     questions.forEach((question, index) => {
+      // Escape quotes in the question text for JSON
+      const escapedQuestion = question.replace(/"/g, '\\"');
       prompt += `    {\n`;
-      prompt += `      "question": "${question}",\n`;
+      prompt += `      "question": "${escapedQuestion}",\n`;
       prompt += `      "answer": "Your detailed analysis answering this specific question with evidence from the text",\n`;
       prompt += `      "score": ${index === 0 ? '75' : 'number_between_1_and_100'}\n`;
       prompt += `    }${index < questions.length - 1 ? ',' : ''}\n`;
