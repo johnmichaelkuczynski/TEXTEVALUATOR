@@ -51,6 +51,27 @@ export class LLMService {
     }
   }
 
+  async callLLMWithStreaming(provider: string, prompt: string, onChunk: (chunk: string) => void, systemPrompt?: string): Promise<string> {
+    try {
+      switch (provider) {
+        case "zhi1": // OpenAI
+          return await this.callOpenAIStreaming(prompt, onChunk, systemPrompt);
+        case "zhi2": // Anthropic
+          return await this.callAnthropicStreaming(prompt, onChunk, systemPrompt);
+        case "zhi3": // DeepSeek
+          return await this.callDeepSeekStreaming(prompt, onChunk, systemPrompt);
+        case "zhi4": // Perplexity
+          return await this.callPerplexityStreaming(prompt, onChunk, systemPrompt);
+        default:
+          throw new Error(`Unknown LLM provider: ${provider}`);
+      }
+    } catch (error) {
+      console.error(`LLM streaming call failed for ${provider}:`, error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`LLM call failed: ${errorMessage}`);
+    }
+  }
+
   private async callOpenAI(prompt: string, systemPrompt?: string): Promise<string> {
     const messages: any[] = [];
     
@@ -67,6 +88,95 @@ export class LLMService {
     });
 
     return response.choices[0].message.content || "";
+  }
+
+  private async callAnthropicStreaming(prompt: string, onChunk: (chunk: string) => void, systemPrompt?: string): Promise<string> {
+    const stream = await this.anthropic.messages.create({
+      model: DEFAULT_ANTHROPIC_MODEL,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+      system: systemPrompt || undefined,
+      stream: true
+    });
+
+    let fullResponse = "";
+    
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+        const text = chunk.delta.text;
+        fullResponse += text;
+        onChunk(text);
+      }
+    }
+    
+    return fullResponse;
+  }
+
+  private async callOpenAIStreaming(prompt: string, onChunk: (chunk: string) => void, systemPrompt?: string): Promise<string> {
+    const messages: any[] = [];
+    
+    if (systemPrompt) {
+      messages.push({ role: "system", content: systemPrompt });
+    }
+    
+    messages.push({ role: "user", content: prompt });
+
+    const stream = await this.openai.chat.completions.create({
+      model: DEFAULT_OPENAI_MODEL,
+      messages,
+      max_completion_tokens: 4000,
+      stream: true
+    });
+
+    let fullResponse = "";
+    
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content || "";
+      if (text) {
+        fullResponse += text;
+        onChunk(text);
+      }
+    }
+    
+    return fullResponse;
+  }
+
+  private async callDeepSeekStreaming(prompt: string, onChunk: (chunk: string) => void, systemPrompt?: string): Promise<string> {
+    // For now, fallback to non-streaming and simulate streaming
+    const response = await this.callDeepSeek(prompt, systemPrompt);
+    
+    // Simulate streaming by sending chunks
+    const words = response.split(' ');
+    let fullResponse = "";
+    
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i] + (i < words.length - 1 ? ' ' : '');
+      fullResponse += word;
+      onChunk(word);
+      // Small delay to simulate streaming
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    return fullResponse;
+  }
+
+  private async callPerplexityStreaming(prompt: string, onChunk: (chunk: string) => void, systemPrompt?: string): Promise<string> {
+    // For now, fallback to non-streaming and simulate streaming
+    const response = await this.callPerplexity(prompt, systemPrompt);
+    
+    // Simulate streaming by sending chunks
+    const words = response.split(' ');
+    let fullResponse = "";
+    
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i] + (i < words.length - 1 ? ' ' : '');
+      fullResponse += word;
+      onChunk(word);
+      // Small delay to simulate streaming
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    return fullResponse;
   }
 
   private async callAnthropic(prompt: string, systemPrompt?: string): Promise<string> {

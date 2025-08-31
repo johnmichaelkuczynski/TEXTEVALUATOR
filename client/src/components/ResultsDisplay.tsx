@@ -13,6 +13,8 @@ interface ResultsDisplayProps {
   currentLLM: string;
   streamingStatus?: string;
   streamingPhase?: string;
+  streamingText?: string;
+  showStreamingText?: boolean;
   onCritiqueAnalysis?: (critique: string) => void;
   isCritiqueAnalyzing?: boolean;
 }

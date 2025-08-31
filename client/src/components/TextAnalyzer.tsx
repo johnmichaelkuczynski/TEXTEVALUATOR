@@ -23,6 +23,8 @@ export default function TextAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isCritiqueAnalyzing, setIsCritiqueAnalyzing] = useState(false);
+  const [streamingText, setStreamingText] = useState("");
+  const [showStreamingText, setShowStreamingText] = useState(false);
   
   const { toast } = useToast();
   
@@ -111,6 +113,8 @@ export default function TextAnalyzer() {
     setIsAnalyzing(true);
     setStreamingStatus("Connecting...");
     setStreamingPhase("");
+    setStreamingText("");
+    setShowStreamingText(false);
     
     try {
       const response = await fetch('/api/analyze', {
@@ -169,6 +173,11 @@ export default function TextAnalyzer() {
                   if (update.type === 'status') {
                     setStreamingStatus(update.message);
                     setStreamingPhase(update.phase);
+                  } else if (update.type === 'streaming_text') {
+                    // Show real-time LLM response as it's being generated
+                    setStreamingText(update.accumulated);
+                    setShowStreamingText(true);
+                    setStreamingStatus(`Generating analysis... (${update.accumulated.length} chars)`)
                   } else if (update.type === 'progress') {
                     // Show partial results as they come in
                     const partialResult: AnalysisResult = {
@@ -633,6 +642,8 @@ export default function TextAnalyzer() {
             currentLLM={getLLMDisplayName(selectedLLM)}
             streamingStatus={streamingStatus}
             streamingPhase={streamingPhase}
+            streamingText={streamingText}
+            showStreamingText={showStreamingText}
             onCritiqueAnalysis={performCritiqueAnalysis}
             isCritiqueAnalyzing={isCritiqueAnalyzing}
           />

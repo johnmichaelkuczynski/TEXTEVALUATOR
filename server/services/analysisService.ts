@@ -105,7 +105,18 @@ export class AnalysisService {
     const prompt = this.buildAnalysisPrompt(analysisText, questions, request.mode, request.backgroundInfo, request.critique);
 
     onUpdate({ type: 'status', message: 'Sending request to LLM...', phase: 'llm-call' });
-    const rawResponse = await this.llmService.callLLM(request.llmProvider, prompt, systemPrompt);
+    
+    let streamedContent = "";
+    const onChunk = (chunk: string) => {
+      streamedContent += chunk;
+      onUpdate({ 
+        type: 'streaming_text', 
+        chunk: chunk,
+        accumulated: streamedContent
+      });
+    };
+    
+    const rawResponse = await this.llmService.callLLMWithStreaming(request.llmProvider, prompt, onChunk, systemPrompt);
     
     onUpdate({ type: 'status', message: 'Processing response...', phase: 'parsing' });
     const parsedResult = this.parseAnalysisResponse(rawResponse, request.mode, request.llmProvider);
