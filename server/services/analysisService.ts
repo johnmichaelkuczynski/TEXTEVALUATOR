@@ -723,12 +723,14 @@ export class AnalysisService {
       parsed.summary = "Analysis completed";
     }
     
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      parsed.questions = [{
-        question: "Overall Assessment",
-        answer: parsed.finalAssessment || "Assessment completed",
-        score: parsed.overallScore || 50
-      }];
+    if (!parsed.questions || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
+      // Get the expected questions for this mode
+      const expectedQuestions = this.getQuestionsForMode(mode);
+      parsed.questions = expectedQuestions.map(question => ({
+        question: question,
+        answer: "Analysis failed to provide detailed response",
+        score: 50
+      }));
     }
     
     if (!parsed.overallScore) {
