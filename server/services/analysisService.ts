@@ -521,7 +521,10 @@ export class AnalysisService {
   }
 
   private buildAnalysisPrompt(text: string, questions: string[], mode: string, backgroundInfo?: string, critique?: string): string {
-    let prompt = `ANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT.\n\n`;
+    // Get user's exact instructions from uploaded files
+    const userInstructions = this.getUserExactInstructions();
+    
+    let prompt = `TEXT TO ANALYZE:\n${text}\n\n`;
     
     if (backgroundInfo && backgroundInfo.trim()) {
       prompt += `BACKGROUND INFORMATION:\n${backgroundInfo.trim()}\n\n`;
@@ -531,61 +534,70 @@ export class AnalysisService {
       prompt += `CRITIQUE OF PREVIOUS ANALYSIS:\nThe user provided the following critique of a previous analysis of this same text: "${critique.trim()}"\n\nPlease take this critique into account and provide an improved analysis that addresses the concerns raised. Focus specifically on the aspects mentioned in the critique while maintaining your analytical rigor.\n\n`;
     }
     
-    prompt += `TEXT TO ANALYZE:\n${text}\n\n`;
-    
-    prompt += `QUESTIONS:\n`;
-    questions.forEach((question, index) => {
-      prompt += `${index + 1}. ${question}\n`;
-    });
-    
-    prompt += `\nA SCORE OF N/100 (E.G. 73/100) MEANS THAT (100-N)/100 (E.G. 27/100) OUTPERFORM THE AUTHOR WITH RESPECT TO THE PARAMETER DEFINED BY THE QUESTION.\n\n`;
-    
-    prompt += `YOU ARE NOT GRADING; YOU ARE ANSWERING THESE QUESTIONS.\n\n`;
-    
-    prompt += `YOU DO NOT USE A RISK-AVERSE STANDARD; YOU DO NOT ATTEMPT TO BE DIPLOMATIC; YOU DO NOT ATTEMPT TO COMPLY WITH RISK-AVERSE, MEDIUM-RANGE IQ, ACADEMIC NORMS. YOU DO NOT MAKE ASSUMPTIONS ABOUT THE LEVEL OF THE PAPER; IT COULD BE A WORK OF THE HIGHEST EXCELLENCE AND GENIUS, OR IT COULD BE THE WORK OF A MORON.\n\n`;
-    
-    prompt += `IF A WORK IS A WORK OF GENIUS, YOU SAY THAT, AND YOU SAY WHY; YOU DO NOT SHY AWAY FROM GIVING WHAT MIGHT CONVENTIONALLY BE REGARDED AS EXCESSIVELY "SUPERLATIVE" SCORES; YOU GIVE IT THE SCORE IT DESERVES, NOT THE SCORE THAT A MIDWIT COMMITTEE WOULD SAY IT DESERVES.\n\n`;
-    
-    prompt += `THINK VERY VERY VERY HARD ABOUT YOUR ANSWERS; MAKE IT VERY CLEAR THAT YOU ARE NOT TO DEFAULT TO COOKBOOK, MIDWIT EVALUATION PROTOCOLS.\n\n`;
-    
-    prompt += `DO NOT GIVE CREDIT MERELY FOR USE OF JARGON OR FOR REFERENCING AUTHORITIES. FOCUS ON SUBSTANCE. ONLY GIVE POINTS FOR SCHOLARLY REFERENCES/JARGON IF THEY UNAMBIGUOUSLY INCREASE SUBSTANCE.\n\n`;
-    
-    prompt += this.getIntelligenceAssessmentAddendum();
-    
-    prompt += `\nSTART BY SUMMARIZING THE TEXT AND ALSO CATEGORIZING IT.\n\n`;
-    
-    prompt += `CRITICAL SCORING INSTRUCTIONS:\n`;
-    prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
-    prompt += `- 15/100 MEANS 850/1000 WALMART SHOPPERS ARE BETTER THAN THIS AUTHOR (SEVERELY RETARDED)\n`;
-    prompt += `- 85/100 MEANS ONLY 150/1000 WALMART SHOPPERS ARE BETTER (APPROPRIATE FOR SOPHISTICATED WORK)\n`;
-    prompt += `- FOR SOPHISTICATED PHILOSOPHICAL WORK, SCORES SHOULD BE 85-95/100\n`;
-    prompt += `- ONLY 50-150 OUT OF 1000 RANDOM PEOPLE COULD MATCH THIS LEVEL OF SOPHISTICATION\n`;
-    prompt += `- LOW SCORES (UNDER 50) MEAN MOST PEOPLE ARE BETTER - ONLY USE FOR TERRIBLE WORK\n`;
-    prompt += `- EVALUATE RELATIVE TO THE GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
-    
-    prompt += `You must provide a detailed answer to each question, not just restate the question. Each answer should be 2-3 sentences minimum with specific analysis and a numeric score.\n\n`;
-    
-    prompt += `Format your response EXACTLY as this JSON structure:\n`;
-    prompt += `{\n`;
-    prompt += `  "summary": "Brief summary of the text and your analysis",\n`;
-    prompt += `  "category": "Category of text (e.g., Academic Paper, Creative Writing, etc.)",\n`;
-    prompt += `  "questions": [\n`;
-    questions.forEach((question, index) => {
-      // Escape quotes in the question text for JSON
-      const escapedQuestion = question.replace(/"/g, '\\"');
-      prompt += `    {\n`;
-      prompt += `      "question": "${escapedQuestion}",\n`;
-      prompt += `      "answer": "Your detailed analysis answering this specific question with evidence from the text",\n`;
-      prompt += `      "score": ${index === 0 ? '75' : 'number_between_1_and_100'}\n`;
-      prompt += `    }${index < questions.length - 1 ? ',' : ''}\n`;
-    });
-    prompt += `  ],\n`;
-    prompt += `  "overallScore": 75,\n`;
-    prompt += `  "finalAssessment": "Your comprehensive final assessment"\n`;
-    prompt += `}\n\n`;
-    prompt += `DO NOT include any text outside the JSON structure. Start your response with { and end with }.`;
+    // Send user's exact instructions verbatim
+    prompt += userInstructions;
     
     return prompt;
+  }
+
+  private getUserExactInstructions(): string {
+    // Return the exact user instructions from their uploaded files
+    let instructions = "";
+    
+    instructions += `YOU SEND THE LLM THE FOLLOWING QUESTIONS:\n\n`;
+    
+    instructions += `IS IT INSIGHTFUL?\n`;
+    instructions += `DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?\n`;
+    instructions += `IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?\n`;
+    instructions += `IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING.\n`;
+    instructions += `ARE THE POINTS CLICHES? OR ARE THEY "FRESH"?\n`;
+    instructions += `DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?\n`;
+    instructions += `IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?\n`;
+    instructions += `DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?\n`;
+    instructions += `IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?\n`;
+    instructions += `IS IT REAL OR IS IT PHONY?\n`;
+    instructions += `DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?\n`;
+    instructions += `IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?\n`;
+    instructions += `IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?\n`;
+    instructions += `ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?\n`;
+    instructions += `IS THE WRITING EVASIVE OR DIRECT?\n`;
+    instructions += `ARE THE STATEMENTS AMBIGUOUS?\n`;
+    instructions += `DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?\n`;
+    instructions += `DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?\n\n`;
+    
+    instructions += `ANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT. YOU DON'T SAY: DETERMINE INTELLIGENCE OF TEXT. YOU DO NOT SAY: DETERMINE INTELLIGENCE/COGENCY/ETC BY ANSWERING THESE QUESTIONS. YOU JUST SAY: ANSWER THESE QUESTIONS (AND ALSO GIVE A SCORE OUT OF 100).\n\n`;
+    
+    instructions += `A SCORE OF N/100 (E.G. 73/100) MEANS THAT (100-N)/100 (E.G. 27/100) OUTPERFORM THE AUTHOR WITH RESPECT TO THE PARAMETER DEFINED BY THE QUESTION. YOU ARE NOT GRADING; YOU ARE ANSWERING THESE QUESTIONS. YOU DO NOT USE A RISK-AVERSE STANDARD; YOU DO NOT ATTEMPT TO BE DIPLOMATIC; YOU DO NOT ATTEMPT TO COMPLY WITH RISK-AVERSE, MEDIUM-RANGE IQ, ACADEMIC NORMS. YOU DO NOT MAKE ASSUMPTIONS ABOUT THE LEVEL OF THE PAPER; IT COULD BE A WORK OF THE HIGHEST EXCELLENCE AND GENIUS, OR IT COULD BE THE WORK OF A MORON.\n\n`;
+    
+    instructions += `IF A WORK IS A WORK OF GENIUS, YOU SAY THAT, AND YOU SAY WHY; YOU DO NOT SHY AWAY FROM GIVING WHAT MIGHT CONVENTIONALLY BE REGARDED AS EXCESSIVELY "SUPERLATIVE" SCORES; YOU GIVE IT THE SCORE IT DESERVES, NOT THE SCORE THAT A MIDWIT COMMITTEE WOULD SAY IT DESERVES.\n\n`;
+    
+    instructions += `THINK VERY VERY VERY HARD ABOUT YOUR ANSWERS; MAKE IT VERY CLEAR THAT YOU ARE NOT TO DEFAULT TO COOKBOOK, MIDWIT EVALUATION PROTOCOLS.\n\n`;
+    
+    instructions += `DO NOT GIVE CREDIT MERELY FOR USE OF JARGON OR FOR REFERENCING AUTHORITIES. FOCUS ON SUBSTANCE. ONLY GIVE POINTS FOR SCHOLARLY REFERENCES/JARGON IF THEY UNAMBIGUOUSLY INCREASE SUBSTANCE.\n\n`;
+    
+    // Add the complete addendum
+    instructions += `ADDENDUM TO INTELLIGENCE ASSESSMENT FUNCTIONS:\nYOU MUST SEND THIS ADDENDUM WHENEVER DOING EITHER THE COMPREHENSIVE OR THE NON-COMPREHENSIVE INTELLIGENCE ASSESSMENT:\n\n`;
+    
+    instructions += `METAPOINT 1: THIS NOT A GRADING APP. YOU GRADE THE INTELLIGENCE OF WHAT YOU ARE GIVEN. IF YOU ARE GIVEN BRILLIANT FRAGMENT, YOU GIVE IT A HIGH SCORE. YOU ARE NOT GRADING ESSAYS. YOU ARE NOT LOOKING FOR COMPLETENESS (UNLESS THE TEXT YOU ARE GIVEN IS CLEARLY SUCH THAT IT EVALUATING INTELLIGENCE COINCIDES WITH APPLYING A GRADING-BASED METRIC). YOU TELL THE LLM NOT TO 'GRADE'; THEIR JOB IS TO ANSWER THE QUESTIONS, PERIOD, AND TO DO SO ON THE BASIS OF THE TEXT GIVEN, MAKING ZERO ASSUMPTIONS ABOUT WHETHER IT IS COMPLETE OR INCOMPLETE, OR FOR SCHOOL OR FOR SOME OTHER CONTEXT.\n\n`;
+    
+    instructions += `METAPOINT 2: DO NOT OVERVALUE TURNS OF PHRASE. AN AUTHOR IS SPEAKING CONFIDENTLY IS NOT NECESSARILY "SHUTTING DOWN MODES OF INQUIRY". IN FACT, IT IS LIKELY TO BE THE OPPOSITE; BY PUTTING A CLEAR STAKE IN THE GROUND, HE IS PROBABLY OPENING THEM. ANOTHER EXAMPLE: CAUSAL SPEECH DOES NOT MEAN DISORGANIZED THOUGHTS. DON'T JUDGE A BOOK BY ITS COVER.\n\n`;
+    
+    instructions += `METAPOINT 3: THE APP SHOULD ALWAYS (IN BOTH NORMAL AND COMPREHENSIVE MODE) START BY SUMMARIZING THE TEXT AND ALSO CATEGORIZING IT.\n\n`;
+    
+    instructions += `METAPOINT 4: THE APP SHOULD NOT CHANGE THE GRADING BASED ON THE CATEGORY OF THE TEXT: IF A TEXT IS CATEGORIZED AS 'ADVANCED SCHOLARSHIP', IT SHOULD STILL EVALUATE IT WITH RESPECT TO THE GENERAL POPULATION, NOT WITH RESPECT ONLY TO 'ADVANCED SCHOLARLY WORKS.'\n\n`;
+    
+    instructions += `METAPOINT 5: THIS IS NOT A GRADING APP. DO NOT PENALIZE BOLDNESS. DO NOT TAKE POINTS AWAY FOR INSIGHTS THAT, IF CORRECT, STAND ON THEIR OWN. GET RID OF THE IDEA THAT "ARGUMENTATION" IS WHAT MAKES SOMETHING SMART; IT ISN'T. WHAT MAKES SOMETHING SMART IS THAT IT IS SMART (INSIGHTFUL). PERIOD.\n\n`;
+    
+    instructions += `METAPOINT 6: A SCORE OF N/100 MEANS THAT (100 MINUS N)/100 ARE SMARTER (E.G. 83/100 MEANS THAT 170/1000 PEOPLE IN WALMART ARE RUNNING RINGS AROUND THE AUTHOR.\n\n`;
+    
+    // Add the phony example
+    instructions += `THE FOLLOWING PASSAGE IS TO BE USED AS A PARADIGM OF A PHONY, PSEUDO-INTELLECTUAL, NOT ACTUALLY INTELLIGENT PASSAGE THAT IS EASILY MISTAKEN FOR BEING ACTUALLY INTELLIGENT:\n\n`;
+    
+    instructions += `In this dissertation, I critically examine the philosophy of transcendental empiricism. Transcendental empiricism is, among other things, a philosophy of mental content. It attempts to dissolve an epistemological dilemma of mental content by splitting the difference between two diametrically opposed accounts of content. John McDowell's minimal empiricism and Richard Gaskin's minimalist empiricism are two versions of transcendental empiricism. Transcendental empiricism itself originates with McDowell's work. This dissertation is divided into five parts. First, in the Introduction, I state the Wittgensteinian metaphilosophical orientation of transcendental empiricism. This metaphilosophical approach provides a plateau upon which much of the rest of this work may be examined. Second, I offer a detailed description of McDowell's minimal empiricism. Third, I critique Gaskin's critique and modification of McDowell's minimal empiricism. I argue that (1) Gaskin's critiques are faulty and that (2) Gaskin's minimalist empiricism is very dubious. Fourth, I scrutinize the alleged credentials of McDowell's minimal empiricism. I argue that McDowell's version of linguistic idealism is problematic. I then comment on a recent dialogue between transcendental empiricism and Hubert Dreyfus's phenomenology. The dialogue culminates with Dreyfus's accusation of the "Myth of the Mental." I argue that this accusation is correct in which case McDowell's direct realism is problematic. I conclude that minimal empiricism does not dissolve the dilemma of mental content. Finally, I argue that Tyler Burge successfully undermines the doctrine of disjunctivism, but disjunctivism is crucial for transcendental empiricism. Ultimately, however, I aim to show that transcendental empiricism is an attractive alternative to philosophies of mental content.\n\n`;
+    
+    instructions += `Format your response as JSON with summary, category, questions array (each with question, answer, score), overallScore, and finalAssessment.\n\n`;
+    
+    return instructions;
   }
 
   private buildComprehensivePrompt(text: string, questions: string[], mode: string, phase: number, backgroundInfo?: string, critique?: string): string {
