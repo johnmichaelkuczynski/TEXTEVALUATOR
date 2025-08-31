@@ -481,12 +481,9 @@ export default function TextAnalyzer() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cognitive-short">Cognitive (S)</SelectItem>
-                  <SelectItem value="cognitive-long">Cognitive (L)</SelectItem>
-                  <SelectItem value="psychological-short">Psychological (S)</SelectItem>
-                  <SelectItem value="psychological-long">Psychological (L)</SelectItem>
-                  <SelectItem value="psychopathological-short">Psychopathological (S)</SelectItem>
-                  <SelectItem value="psychopathological-long">Psychopathological (L)</SelectItem>
+                  <SelectItem value="cognitive-short">Cognitive</SelectItem>
+                  <SelectItem value="psychological-short">Psychological</SelectItem>
+                  <SelectItem value="psychopathological-short">Psychopathological</SelectItem>
                 </SelectContent>
               </Select>
 

@@ -5,11 +5,8 @@ export const analysisRequestSchema = z.object({
   backgroundInfo: z.string().optional(),
   mode: z.enum([
     "cognitive-short",
-    "cognitive-long", 
     "psychological-short",
-    "psychological-long",
-    "psychopathological-short",
-    "psychopathological-long"
+    "psychopathological-short"
   ]),
   llmProvider: z.enum(["zhi1", "zhi2", "zhi3", "zhi4"]),
   chunks: z.array(z.object({

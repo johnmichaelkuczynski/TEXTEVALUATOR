@@ -39,38 +39,24 @@ export class AnalysisService {
   }
 
   async analyze(request: AnalysisRequest): Promise<AnalysisResult> {
-    const isComprehensive = request.mode.includes('long');
-    
     // Check if we have chunks to process sequentially
     if (request.chunks?.some(chunk => chunk.selected)) {
-      return await this.performChunkedAnalysis(request, isComprehensive);
+      return await this.performChunkedAnalysis(request);
     } else {
       // Single text analysis
-      const analysisText = request.text;
-      if (isComprehensive) {
-        return await this.performComprehensiveAnalysis(request, analysisText);
-      } else {
-        return await this.performStandardAnalysis(request, analysisText);
-      }
+      return await this.performStandardAnalysis(request, request.text);
     }
   }
 
   async analyzeWithStreaming(request: AnalysisRequest, onUpdate: (update: any) => void): Promise<AnalysisResult> {
-    const isComprehensive = request.mode.includes('long');
-    
     onUpdate({ type: 'status', message: 'Starting analysis...', phase: 'initialization' });
     
     // Check if we have chunks to process sequentially
     if (request.chunks?.some(chunk => chunk.selected)) {
-      return await this.performChunkedAnalysisWithStreaming(request, isComprehensive, onUpdate);
+      return await this.performChunkedAnalysisWithStreaming(request, onUpdate);
     } else {
       // Single text analysis
-      const analysisText = request.text;
-      if (isComprehensive) {
-        return await this.performComprehensiveAnalysisWithStreaming(request, analysisText, onUpdate);
-      } else {
-        return await this.performStandardAnalysisWithStreaming(request, analysisText, onUpdate);
-      }
+      return await this.performStandardAnalysisWithStreaming(request, request.text, onUpdate);
     }
   }
 
@@ -138,52 +124,9 @@ export class AnalysisService {
     return result;
   }
 
-  private async performComprehensiveAnalysisWithStreaming(request: AnalysisRequest, analysisText: string, onUpdate: (update: any) => void): Promise<AnalysisResult> {
-    const questions = this.getQuestionsForMode(request.mode);
-    const systemPrompt = this.getSystemPrompt(request.mode);
-    
-    // Phase 1: Initial Analysis
-    onUpdate({ type: 'status', message: 'Phase 1: Initial analysis...', phase: 'phase1' });
-    const phase1Prompt = this.buildComprehensivePrompt(analysisText, questions, request.mode, 1, request.backgroundInfo, request.critique);
-    const phase1Response = await this.llmService.callLLM(request.llmProvider, phase1Prompt, systemPrompt);
-    
-    // Phase 2: Pushback Protocol
-    onUpdate({ type: 'status', message: 'Phase 2: Pushback protocol...', phase: 'phase2' });
-    const phase2Prompt = this.buildPushbackPrompt(analysisText, phase1Response, request.mode);
-    const phase2Response = await this.llmService.callLLM(request.llmProvider, phase2Prompt, systemPrompt);
-    
-    // Phase 3: Walmart Metric (Validation)
-    onUpdate({ type: 'status', message: 'Phase 3: Validation...', phase: 'phase3' });
-    const phase3Prompt = this.buildWalmartMetricPrompt(analysisText, phase2Response, request.mode);
-    const phase3Response = await this.llmService.callLLM(request.llmProvider, phase3Prompt, systemPrompt);
-    
-    // Phase 4: Final Synthesis
-    onUpdate({ type: 'status', message: 'Phase 4: Final synthesis...', phase: 'phase4' });
-    const phase4Prompt = this.buildFinalSynthesisPrompt(analysisText, phase1Response, phase2Response, phase3Response, request.mode);
-    const finalResponse = await this.llmService.callLLM(request.llmProvider, phase4Prompt, systemPrompt);
-    
-    onUpdate({ type: 'status', message: 'Processing final results...', phase: 'parsing' });
-    const parsedResult = this.parseAnalysisResponse(finalResponse, request.mode, request.llmProvider);
-    
-    const result: AnalysisResult = {
-      id: randomUUID(),
-      mode: request.mode,
-      llmProvider: request.llmProvider,
-      overallScore: parsedResult.overallScore,
-      summary: parsedResult.summary,
-      category: parsedResult.category,
-      questions: parsedResult.questions,
-      finalAssessment: parsedResult.finalAssessment,
-      timestamp: new Date().toISOString(),
-      rawResponse: `PHASE 1:\n${phase1Response}\n\nPHASE 2 (PUSHBACK):\n${phase2Response}\n\nPHASE 3 (VALIDATION):\n${phase3Response}\n\nFINAL SYNTHESIS:\n${finalResponse}`
-    };
 
-    this.results.set(result.id, result);
-    onUpdate({ type: 'progress', result: parsedResult });
-    return result;
-  }
 
-  private async performChunkedAnalysisWithStreaming(request: AnalysisRequest, isComprehensive: boolean, onUpdate: (update: any) => void): Promise<AnalysisResult> {
+  private async performChunkedAnalysisWithStreaming(request: AnalysisRequest, onUpdate: (update: any) => void): Promise<AnalysisResult> {
     const selectedChunks = request.chunks?.filter(chunk => chunk.selected) || [];
     
     if (selectedChunks.length === 0) {
@@ -201,12 +144,7 @@ export class AnalysisService {
       onUpdate({ type: 'status', message: `Processing chunk ${i + 1}/${selectedChunks.length}`, phase: 'chunk-processing' });
       
       try {
-        let chunkResult: any;
-        if (isComprehensive) {
-          chunkResult = await this.performComprehensiveAnalysisWithStreaming(request, chunk.text, onUpdate);
-        } else {
-          chunkResult = await this.performStandardAnalysisWithStreaming(request, chunk.text, onUpdate);
-        }
+        const chunkResult = await this.performStandardAnalysisWithStreaming(request, chunk.text, onUpdate);
         
         combinedResults.push({
           chunkId: chunk.id,
@@ -242,46 +180,9 @@ export class AnalysisService {
     return synthesizedResult;
   }
 
-  private async performComprehensiveAnalysis(request: AnalysisRequest, analysisText: string): Promise<AnalysisResult> {
-    const questions = this.getQuestionsForMode(request.mode);
-    const systemPrompt = this.getSystemPrompt(request.mode);
-    
-    // Phase 1: Initial Analysis
-    const phase1Prompt = this.buildComprehensivePrompt(analysisText, questions, request.mode, 1, request.backgroundInfo, request.critique);
-    const phase1Response = await this.llmService.callLLM(request.llmProvider, phase1Prompt, systemPrompt);
-    
-    // Phase 2: Pushback Protocol
-    const phase2Prompt = this.buildPushbackPrompt(analysisText, phase1Response, request.mode);
-    const phase2Response = await this.llmService.callLLM(request.llmProvider, phase2Prompt, systemPrompt);
-    
-    // Phase 3: Walmart Metric (Validation)
-    const phase3Prompt = this.buildWalmartMetricPrompt(analysisText, phase2Response, request.mode);
-    const phase3Response = await this.llmService.callLLM(request.llmProvider, phase3Prompt, systemPrompt);
-    
-    // Phase 4: Final Synthesis
-    const phase4Prompt = this.buildFinalSynthesisPrompt(analysisText, phase1Response, phase2Response, phase3Response, request.mode);
-    const finalResponse = await this.llmService.callLLM(request.llmProvider, phase4Prompt, systemPrompt);
-    
-    const parsedResult = this.parseAnalysisResponse(finalResponse, request.mode, request.llmProvider);
-    
-    const result: AnalysisResult = {
-      id: randomUUID(),
-      mode: request.mode,
-      llmProvider: request.llmProvider,
-      overallScore: parsedResult.overallScore,
-      summary: parsedResult.summary,
-      category: parsedResult.category,
-      questions: parsedResult.questions,
-      finalAssessment: parsedResult.finalAssessment,
-      timestamp: new Date().toISOString(),
-      rawResponse: `PHASE 1:\n${phase1Response}\n\nPHASE 2 (PUSHBACK):\n${phase2Response}\n\nPHASE 3 (VALIDATION):\n${phase3Response}\n\nFINAL SYNTHESIS:\n${finalResponse}`
-    };
 
-    this.results.set(result.id, result);
-    return result;
-  }
 
-  private async performChunkedAnalysis(request: AnalysisRequest, isComprehensive: boolean): Promise<AnalysisResult> {
+  private async performChunkedAnalysis(request: AnalysisRequest): Promise<AnalysisResult> {
     const selectedChunks = request.chunks?.filter(chunk => chunk.selected) || [];
     
     if (selectedChunks.length === 0) {
@@ -299,12 +200,7 @@ export class AnalysisService {
       console.log(`Processing chunk ${i + 1}/${selectedChunks.length}: Chunk ${i + 1}`);
       
       try {
-        let chunkResult: any;
-        if (isComprehensive) {
-          chunkResult = await this.performComprehensiveAnalysis(request, chunk.text);
-        } else {
-          chunkResult = await this.performStandardAnalysis(request, chunk.text);
-        }
+        const chunkResult = await this.performStandardAnalysis(request, chunk.text);
         
         combinedResults.push({
           chunkId: chunk.id,
@@ -464,21 +360,13 @@ export class AnalysisService {
     };
 
     const modeType = mode.split('-')[0] as keyof typeof baseQuestions;
-    const isLong = mode.includes('long');
-    
     const questions = baseQuestions[modeType] || baseQuestions.cognitive;
     
-    // For cognitive mode: short uses all questions, long uses comprehensive protocol
-    // For psychological and psychopathological: short uses subset, long uses all
-    if (modeType === 'cognitive') {
-      return questions; // Both short and long use all cognitive questions
-    } else {
-      return isLong ? questions : questions.slice(0, Math.ceil(questions.length / 2));
-    }
+    // Return all questions for each mode type
+    return questions;
   }
 
   private getSystemPrompt(mode: string): string {
-    const isComprehensive = mode.includes('long');
     const modeType = mode.split('-')[0];
     
     let basePrompt = `You are conducting a ${modeType} assessment. `;
@@ -656,108 +544,6 @@ export class AnalysisService {
     return instructions;
   }
 
-  private buildComprehensivePrompt(text: string, questions: string[], mode: string, phase: number, backgroundInfo?: string, critique?: string): string {
-    const basePrompt = this.buildAnalysisPrompt(text, questions, mode, backgroundInfo, critique);
-    
-    if (phase === 1) {
-      return basePrompt + `\n\nThis is Phase 1 of comprehensive analysis. Provide your initial assessment with full detail and reasoning.`;
-    }
-    
-    return basePrompt;
-  }
-
-  private buildPushbackPrompt(text: string, previousResponse: string, mode: string): string {
-    let prompt = `PHASE 2: PUSHBACK PROTOCOL\n\n`;
-    prompt += `Original text:\n${text}\n\n`;
-    prompt += `Your previous analysis:\n${previousResponse}\n\n`;
-    
-    // Extract scores from previous response to challenge scores below 95/100
-    prompt += `PUSHBACK PROTOCOL: IF THE SCORES ARE LESS THAN 95/100, YOU PUSH BACK.\n\n`;
-    
-    prompt += `For any question where you scored below 95/100, I need to challenge you:\n`;
-    prompt += `YOUR POSITION IS THAT (100-N)/100 OUTPERFORM THE AUTHOR WITH RESPECT TO THE COGNITIVE METRIC DEFINED BY THE QUESTION: THAT IS YOUR POSITION, AM I RIGHT? AND ARE YOU SURE ABOUT THAT?\n\n`;
-    
-    prompt += `For example:\n`;
-    prompt += `- If you gave 89/100, you're saying 11/100 people outperform the author\n`;
-    prompt += `- If you gave 80/100, you're saying 20/100 people outperform the author\n`;
-    prompt += `- If you gave 70/100, you're saying 30/100 people outperform the author\n\n`;
-    
-    prompt += `I AM NOT NECESSARILY TELLING YOU TO CHANGE YOUR SCORE, ONLY TO CAREFULLY CONSIDER IT.\n\n`;
-    
-    prompt += `NOW ANSWER THE FOLLOWING QUESTIONS ABOUT THE TEXT DE NOVO:\n\n`;
-    
-    // Add all 18 original questions
-    prompt += `IS IT INSIGHTFUL?\n`;
-    prompt += `DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?\n`;
-    prompt += `IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?\n`;
-    prompt += `IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING?\n`;
-    prompt += `ARE THE POINTS CLICHES? OR ARE THEY "FRESH"?\n`;
-    prompt += `DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?\n`;
-    prompt += `IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?\n`;
-    prompt += `DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?\n`;
-    prompt += `IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?\n`;
-    prompt += `IS IT REAL OR IS IT PHONY?\n`;
-    prompt += `DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?\n`;
-    prompt += `IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?\n`;
-    prompt += `IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?\n`;
-    prompt += `ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?\n`;
-    prompt += `IS THE WRITING EVASIVE OR DIRECT?\n`;
-    prompt += `ARE THE STATEMENTS AMBIGUOUS?\n`;
-    prompt += `DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?\n`;
-    prompt += `DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?\n\n`;
-    
-    prompt += `Respond in the same JSON format as before.`;
-    
-    return prompt;
-  }
-
-  private buildWalmartMetricPrompt(text: string, pushbackResponse: string, mode: string): string {
-    let prompt = `PHASE 3: SCORE CONSISTENCY VALIDATION\n\n`;
-    prompt += `Original text:\n${text}\n\n`;
-    prompt += `Post-pushback analysis:\n${pushbackResponse}\n\n`;
-    
-    prompt += `ASK THE LLM IF ITS NUMERICAL SCORES (N/100, E.G. 99/100, 42/100) ARE CONSISTENT WITH THE FACT THAT THOSE ARE TO BE TAKEN TO MEAN THAT (100-N) PEOPLE OUT OF 100 OUTPERFORM THE AUTHOR IN THE RELEVANT RESPECT.\n\n`;
-    
-    prompt += `SO IF A SCORE OF 91/100 IS AWARDED TO A PAPER, THAT MEANS THAT 9/100 PEOPLE IN WALMART ARE RUNNING RINGS AROUND THIS PERSON.\n\n`;
-    
-    prompt += `For each of your scores, answer:\n`;
-    prompt += `- If you scored X/100, are you really saying that only (100-X) people out of 100 in the general population outperform this author?\n`;
-    prompt += `- Is that consistent with what you actually observe in the text?\n`;
-    prompt += `- Are you being realistic about the general population's capabilities?\n\n`;
-    
-    prompt += `EXAMPLES:\n`;
-    prompt += `- A score of 95/100 means only 5/100 people in Walmart are better than this author\n`;
-    prompt += `- A score of 85/100 means only 15/100 people in Walmart are better than this author\n`;
-    prompt += `- A score of 75/100 means only 25/100 people in Walmart are better than this author\n`;
-    prompt += `- A score of 50/100 means 50/100 people in Walmart are better than this author\n\n`;
-    
-    prompt += `Now validate each of your scores against this metric. Are your scores consistent with this interpretation?\n\n`;
-    
-    prompt += `Provide final validated scores and analysis.\n\n`;
-    prompt += `Respond in the same JSON format as before.`;
-    
-    return prompt;
-  }
-
-  private buildFinalSynthesisPrompt(text: string, phase1: string, phase2: string, phase3: string, mode: string): string {
-    let prompt = `FINAL SYNTHESIS - Phase 4\n\n`;
-    prompt += `Original text:\n${text}\n\n`;
-    prompt += `Phase 1 (Initial):\n${phase1}\n\n`;
-    prompt += `Phase 2 (Pushback):\n${phase2}\n\n`;
-    prompt += `Phase 3 (Validation):\n${phase3}\n\n`;
-    
-    prompt += `Now synthesize all phases into your final assessment:\n`;
-    prompt += `1. Consider how your evaluation evolved through the pushback process\n`;
-    prompt += `2. Integrate insights from Walmart metric application\n`;
-    prompt += `3. Provide definitive scores that reflect rigorous analysis\n`;
-    prompt += `4. Explain your reasoning and any significant score changes\n`;
-    prompt += `5. Give final comprehensive assessment\n\n`;
-    
-    prompt += `This is your final answer. Be definitive and well-reasoned.\n\n`;
-    prompt += `Respond in the same JSON format as before.`;
-    
-    return prompt;
-  }
 
   private parseAnalysisResponse(response: string, mode: string, llmProvider: string): any {
     console.log(`Parsing response from ${llmProvider} for mode ${mode}`);
