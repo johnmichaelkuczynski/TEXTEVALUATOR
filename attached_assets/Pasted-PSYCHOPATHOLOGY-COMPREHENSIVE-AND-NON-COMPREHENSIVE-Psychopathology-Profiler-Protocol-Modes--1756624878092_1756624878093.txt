@@ -1,0 +1,123 @@
+PSYCHOPATHOLOGY (COMPREHENSIVE AND NON-COMPREHENSIVE) 
+
+Psychopathology Profiler Protocol
+Modes
+
+Normal Mode = Phase 1 only.
+
+Comprehensive Mode = Phases 1–4, plus pushback, Walmart metric, sniper amendment.
+
+Phase 1 (Normal Protocol)
+Questions for the LLM
+
+Ask only these questions in connection with the text (or responses). Require answers plus a score out of 100:
+
+Does the text reveal distorted reality testing (delusion, paranoia, magical thinking), or intact contact with reality?
+
+Is there evidence of persecutory ideation (seeing threats/conspiracies) or is perception proportionate?
+
+Does the subject show rigid obsessional patterns (compulsion, repetitive fixation) vs. flexible thought?
+
+Are there signs of narcissistic pathology (grandiosity, exploitation, lack of empathy), or balanced self-other relation?
+
+Is aggression expressed as sadism, cruelty, destructive glee, or is it integrated/controlled?
+
+Is affect regulation stable or does it suggest lability, rage, despair, manic flight?
+
+Does the person exhibit emptiness, hollowness, anhedonia, or a capacity for meaning/connection?
+
+Is there evidence of identity diffusion (incoherence, role-shifting, lack of stable self)?
+
+Are interpersonal patterns exploitative/manipulative or reciprocal/genuine?
+
+Does the psyche lean toward psychotic organization (loss of boundaries, hallucination-like claims), borderline organization (splitting, fear of abandonment), or neurotic organization (anxiety, repression)?
+
+Are defenses predominantly primitive (denial, projection, splitting) or higher-level?
+
+Is there evidence of pathological lying, phoniness, simulation, or authentic communication?
+
+Does the discourse exhibit compulsive hostility toward norms/authorities (paranoid defiance) or measured critique?
+
+Is sexuality integrated or perverse/displaced (voyeurism, exhibitionism, compulsive control)?
+
+Is the overall presentation coherent and reality-based or chaotic, persecutory, hollow, performative?
+
+Explicit Instructions to LLM
+
+Answer these questions in connection with this text.
+
+Also give a score out of 100.
+
+A score of N/100 means (100–N)/100 outperform the subject with respect to the parameter.
+
+You are not diagnosing. You are describing the degree of psychopathology revealed.
+
+You are not grading. You are answering questions.
+
+Summarize the text and categorize the presentation (e.g., neurotic, borderline, psychotic, narcissistic, obsessional).
+
+Do not give credit for rhetorical surface (confidence, erudition). Focus on reality testing, defenses, affect, and interpersonal stance.
+
+Evaluate relative to the general population, not just clinical populations.
+
+Do not penalize intense but integrated thought — pathology is disorganization, not extremity.
+
+Phase 2 (Pushback Protocol)
+
+If score < 95/100:
+
+Restate: Your position is that (100–N)/100 exhibit healthier functioning than this author. Are you sure?
+
+Require articulation: What concrete psychological health do those outperformers have (e.g., intact reality testing, capacity for empathy, affect regulation) that the subject lacks?
+
+Re-ask Phase 1 questions de novo.
+
+Phase 3 (Walmart Metric Enforcement)
+
+Enforce: If you claim 20/100 Walmart patrons show better pathological resilience than this subject, specify what those 20 have (e.g., less paranoid ideation, more empathy). If you can’t, revise.
+
+Phase 4 (Final Validation)
+
+Confirm before finalizing:
+
+Was the subject penalized for boldness or eccentricity rather than pathology? If yes → recalibrate.
+
+Does the score reflect actual disorganization / dysfunction, not social nonconformity?
+
+Is the Walmart metric grounded in specific superiority, not vague hand-waving?
+
+Addenda
+
+Sniper Amendment (Psychopathology version)
+
+Pathology is not a matter of being “different.” The sniper insight is: pathology = distortion + dysfunction, not extremity of thought.
+
+Rating scale:
+
+95–100 = minimal psychopathology, resilient, reality-based.
+
+80–94 = functional but with marked distortions / defenses.
+
+<80 = clear maladaptive pathology (rigidity, delusion, hollowness).
+
+Pushback Amendment (Phase 2)
+
+Require LLM to specify: What specific pathological feature justifies lowering the score?
+
+Ask: Is this pathology, or simply unconventionality?
+
+Final Validation Amendment (Phase 4)
+
+Ensure the LLM did not mistake radical but coherent thought for pathology.
+
+Reconfirm Walmart metric is empirically grounded.
+
+✅ With this, you now have a triplet of profiler protocols:
+
+Cognitive = intelligence markers.
+
+Psychological = ego/defense/personality structure.
+
+Psychopathology = maladaptive distortions/dysfunctions.
+
+Each comes in Normal (Phase 1) and Comprehensive (Phases 1–4 + addenda) modes.
