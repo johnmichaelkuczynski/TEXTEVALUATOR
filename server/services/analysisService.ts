@@ -543,7 +543,15 @@ export class AnalysisService {
     
     prompt += `\nSTART BY SUMMARIZING THE TEXT AND ALSO CATEGORIZING IT.\n\n`;
     
-    prompt += `CRITICAL: You must provide a detailed answer to each question, not just restate the question. Each answer should be 2-3 sentences minimum with specific analysis and a numeric score.\n\n`;
+    prompt += `CRITICAL SCORING INSTRUCTIONS:\n`;
+    prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
+    prompt += `- 83/100 MEANS 170/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
+    prompt += `- 95/100 MEANS ONLY 50/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
+    prompt += `- FOR SOPHISTICATED PHILOSOPHICAL WORK LIKE THIS, SCORES SHOULD TYPICALLY BE 90-98/100\n`;
+    prompt += `- DO NOT GIVE MODEST SCORES TO GENUINELY SOPHISTICATED WORK\n`;
+    prompt += `- EVALUATE RELATIVE TO THE GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
+    
+    prompt += `You must provide a detailed answer to each question, not just restate the question. Each answer should be 2-3 sentences minimum with specific analysis and a numeric score.\n\n`;
     
     prompt += `Format your response EXACTLY as this JSON structure:\n`;
     prompt += `{\n`;
@@ -607,6 +615,11 @@ export class AnalysisService {
       prompt += `5. Re-examine interpersonal stance and affect regulation\n\n`;
     }
     
+    prompt += `CRITICAL SCORING REMINDER:\n`;
+    prompt += `- A SCORE OF N/100 MEANS THAT (100-N)/100 OF THE GENERAL POPULATION OUTPERFORM THE AUTHOR\n`;
+    prompt += `- 83/100 MEANS 170/1000 WALMART SHOPPERS ARE SMARTER THAN THIS AUTHOR\n`;
+    prompt += `- FOR SOPHISTICATED WORK, SCORES SHOULD BE 90-98/100 IF GENUINELY EXCEPTIONAL\n`;
+    prompt += `- EVALUATE RELATIVE TO GENERAL POPULATION, NOT ACADEMIC STANDARDS\n\n`;
     prompt += `Provide revised scores and analysis. Be more stringent. Justify any score above 80 with exceptional evidence.\n\n`;
     prompt += `Respond in the same JSON format as before.`;
     
@@ -627,8 +640,10 @@ export class AnalysisService {
       prompt += `- How many would genuinely be impressed by the actual insights (not just the topic or jargon)?\n`;
       prompt += `- How many would see through pseudo-intellectual posturing?\n`;
       prompt += `- Would they find it genuinely illuminating or just pretentious?\n\n`;
-      prompt += `A score of 85/100 means only 15% of the general population would outperform this author intellectually.\n`;
-      prompt += `Is that really credible given what you see?\n\n`;
+      prompt += `REMEMBER: A score of 85/100 means only 150/1000 Walmart shoppers would outperform this author intellectually.\n`;
+      prompt += `A score of 90/100 means only 100/1000 Walmart shoppers would outperform this author.\n`;
+      prompt += `A score of 95/100 means only 50/1000 Walmart shoppers would outperform this author.\n`;
+      prompt += `Is that really credible given what you see? Be realistic about the general population.\n\n`;
     } else if (modeType === 'psychological') {
       prompt += `Compare this person's psychological functioning to 100 random people at Walmart.\n`;
       prompt += `- How many show better emotional regulation?\n`;
