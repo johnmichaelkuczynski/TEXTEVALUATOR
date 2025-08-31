@@ -578,6 +578,36 @@ export class AnalysisService {
       
       instructions += `Format your response as JSON with summary, category, questions array (each with question, answer, score), overallScore, and finalAssessment.\n\n`;
       
+    } else if (mode.includes('psychopathological')) {
+      // Psychopathological questions
+      instructions += `Does the text reveal distorted reality testing (delusion, paranoia, magical thinking), or intact contact with reality?\n\n`;
+      instructions += `Is there evidence of persecutory ideation (seeing threats/conspiracies) or is perception proportionate?\n\n`;
+      instructions += `Does the subject show rigid obsessional patterns (compulsion, repetitive fixation) vs. flexible thought?\n\n`;
+      instructions += `Are there signs of narcissistic pathology (grandiosity, exploitation, lack of empathy), or balanced self-other relation?\n\n`;
+      instructions += `Is aggression expressed as sadism, cruelty, destructive glee, or is it integrated/controlled?\n\n`;
+      instructions += `Is affect regulation stable or does it suggest lability, rage, despair, manic flight?\n\n`;
+      instructions += `Does the person exhibit emptiness, hollowness, anhedonia, or a capacity for meaning/connection?\n\n`;
+      instructions += `Is there evidence of identity diffusion (incoherence, role-shifting, lack of stable self)?\n\n`;
+      instructions += `Are interpersonal patterns exploitative/manipulative or reciprocal/genuine?\n\n`;
+      instructions += `Does the psyche lean toward psychotic organization (loss of boundaries, hallucination-like claims), borderline organization (splitting, fear of abandonment), or neurotic organization (anxiety, repression)?\n\n`;
+      instructions += `Are defenses predominantly primitive (denial, projection, splitting) or higher-level?\n\n`;
+      instructions += `Is there evidence of pathological lying, phoniness, simulation, or authentic communication?\n\n`;
+      instructions += `Does the discourse exhibit compulsive hostility toward norms/authorities (paranoid defiance) or measured critique?\n\n`;
+      instructions += `Is sexuality integrated or perverse/displaced (voyeurism, exhibitionism, compulsive control)?\n\n`;
+      instructions += `Is the overall presentation coherent and reality-based or chaotic, persecutory, hollow, performative?\n\n`;
+      
+      instructions += `ANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT.\n\n`;
+      instructions += `Also give a score out of 100.\n\n`;
+      instructions += `A score of N/100 means (100–N)/100 outperform the subject with respect to the parameter.\n\n`;
+      instructions += `You are not diagnosing. You are describing the degree of psychopathology revealed.\n\n`;
+      instructions += `You are not grading. You are answering questions.\n\n`;
+      instructions += `Summarize the text and categorize the presentation (e.g., neurotic, borderline, psychotic, narcissistic, obsessional).\n\n`;
+      instructions += `Do not give credit for rhetorical surface (confidence, erudition). Focus on reality testing, defenses, affect, and interpersonal stance.\n\n`;
+      instructions += `Evaluate relative to the general population, not just clinical populations.\n\n`;
+      instructions += `Do not penalize intense but integrated thought — pathology is disorganization, not extremity.\n\n`;
+      
+      instructions += `Format your response as JSON with summary, category, questions array (each with question, answer, score), overallScore, and finalAssessment.\n\n`;
+      
     } else {
       // Cognitive questions (original) with all addenda
       instructions += `IS IT INSIGHTFUL?\n`;
@@ -625,9 +655,7 @@ export class AnalysisService {
     
     return instructions;
   }
-    
-    // Add the complete addendum
-    instructions += `ADDENDUM TO INTELLIGENCE ASSESSMENT FUNCTIONS:\nYOU MUST SEND THIS ADDENDUM WHENEVER DOING EITHER THE COMPREHENSIVE OR THE NON-COMPREHENSIVE INTELLIGENCE ASSESSMENT:\n\n`;
+
   private buildComprehensivePrompt(text: string, questions: string[], mode: string, phase: number, backgroundInfo?: string, critique?: string): string {
     const basePrompt = this.buildAnalysisPrompt(text, questions, mode, backgroundInfo, critique);
     
